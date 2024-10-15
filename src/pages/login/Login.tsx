@@ -1,69 +1,79 @@
 import { useNavigate } from 'react-router-dom';
+import { Input, Button, Checkbox, FormGroup } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = () => {
     // Aquí podrías manejar la autenticación
     // Si el inicio de sesión es exitoso:
     navigate('/home'); // Redirige a la página principal o donde desees
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-blue-800">
+    <div className="flex items-center justify-center h-screen">
       <div className="card__container bg-white rounded-lg shadow-lg p-8 max-w-sm w-full mx-6 md:mx-0">
         <div className="flex justify-center mb-4">
-          <img src="src/assets/img/icon.png" alt="Logo" className="h-12" />
+          <img
+            src="src/assets/img/logo-footer.png"
+            alt="Logo"
+            className="h-12 filter invert brightness-100"
+          />
         </div>
-        <h1 className="text-center text-2xl font-semibold mb-6">Login</h1>
-        <form onSubmit={handleSubmit}>
+        <FormGroup>
           <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-700">
-              Usuario
-            </label>
-            <input
+            <Input
               type="text"
+              disableUnderline={true}
               id="username"
               name="username"
+              placeholder="Usuario"
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700">
-              Contraseña
-            </label>
             <input
               type="password"
               id="password"
               name="password"
+              placeholder="Contraseña"
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
             />
           </div>
           <div className="mb-4 flex items-center">
-            <input type="checkbox" id="terms" className="mr-2" />
-            <label htmlFor="terms" className="text-gray-600">
+            <Checkbox color="secondary" />
+            <label htmlFor="terms" className=" text-gray-600">
               Acepto los términos y condiciones para el tratamiento de mis
               datos.
             </label>
           </div>
-          <button
+          <Button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200"
+            variant="contained"
+            color="secondary"
+            className="w-full  text-white p-2 rounded-md bg-black "
+            onClick={() => {
+              handleSubmit();
+            }}
           >
             Ingresar
-          </button>
-          <div className="text-center mt-4">
-            <button className="border border-gray-300 p-2 rounded-md hover:bg-gray-100 transition duration-200">
+          </Button>
+          <div className="text-center mt-4 w-full">
+            <Button
+              className="border border-gray-300 p-2 rounded-md w-full"
+              color="secondary"
+              startIcon={<GoogleIcon />}
+            >
               Acceder con Google
-            </button>
+            </Button>
+            <Button className="text-center mt-2 w-full" color="secondary">
+              No tengo usuario de red
+            </Button>
           </div>
-          <div className="text-center mt-2">
-            <p className="text-gray-600">No tengo usuario de red</p>
-          </div>
-        </form>
+        </FormGroup>
       </div>
     </div>
   );
