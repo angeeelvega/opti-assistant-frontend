@@ -7,18 +7,51 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider, Drawer
+  Divider,
+  Drawer,
+  Paper,
 } from '@mui/material';
 import { Send, AttachFile, Inbox, Mail, Menu } from '@mui/icons-material';
-import React from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+interface Message {
+  text: string;
+  sender: 'user' | 'bot';
+}
 
 const Home = () => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState<string>('');
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const toggleDrawer =
     (newOpen: boolean | ((prevState: boolean) => boolean)) => () => {
       setOpen(newOpen);
     };
+
+  useEffect(() => {
+    // Desplaza el scroll hacia abajo cuando se actualizan los mensajes
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]); // Se ejecuta cada vez que `messages` cambia
+
+  const handleSend = () => {
+    if (inputValue.trim()) {
+      // Agrega el mensaje del usuario
+      setMessages([...messages, { text: inputValue, sender: 'user' }]);
+      setInputValue(''); // Limpiar el input
+
+      // Simula la respuesta del bot (puedes personalizar esto)
+      setTimeout(() => {
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { text: 'Respuesta del bot', sender: 'bot' },
+        ]);
+      }, 1000); // Respuesta después de 1 segundo
+    }
+  };
 
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
@@ -51,7 +84,8 @@ const Home = () => {
   );
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
+      {/* Menú superior */}
       <div className="w-full flex p-5 md:p-2">
         <IconButton color="secondary" onClick={toggleDrawer(true)}>
           <Menu />
@@ -61,35 +95,47 @@ const Home = () => {
         </Drawer>
       </div>
 
-      {/* Contenedor del chat */}
-      <div className="">
-        <div className=" flex flex-col items-center justify-center  pl-3 pr-3 md:p-10">
-          <div className="flex flex-col items-center mt-56">
-            <img
-              src="src/assets/img/logo-footer.png"
-              className="h-12 filter invert brightness-100"
-            />
-            <div className="mt-8 w-full md:max-w-[600px] ">
-              <h1 className='font-bold text-center'>¡Hola! </h1>
-              <p>¿Cómo puedo ayudarte hoy?</p>
-            </div>
+      <div className="flex flex-col flex-grow p-5">
+        <Paper
+          elevation={3}
+          className="w-full md:max-w-[600px] mx-auto flex-grow flex flex-col justify-start p-4" // Cambia justify-center a justify-start
+        >
+          <div className="flex flex-col p-2 max-h-[650px] overflow-y-auto">
+            {/* Renderiza los mensajes */}
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-2`}
+              >
+                <div
+                  className={`p-2 rounded-xl ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'} w-auto  max-w-[80%] break-words`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {/* Esta div sirve como ancla para el scroll */}
+            <div ref={messagesEndRef} />
           </div>
-          <div className="fixed bottom-0 w-full flex justify-center p-4 md:p-10 ">
-            <IconButton color="secondary">
-              <AttachFile />
-            </IconButton>
-            <TextareaAutosize
-              className="w-full md:max-w-[600px] text-sm font-normal font-sans leading-5 px-3 py-2 rounded-xl rounded-br-none shadow-lg"
-              aria-label="empty textarea"
-              placeholder="Escribe tu solicitud"
-              color={'primary'}
-              minRows={3}
-              maxRows={10}
-            />
-            <IconButton color="secondary">
-              <Send />
-            </IconButton>
-          </div>
+        </Paper>
+
+        <div className="w-full flex justify-center my-4">
+          <IconButton color="secondary">
+            <AttachFile />
+          </IconButton>
+          <TextareaAutosize
+            className="w-full md:max-w-[600px] text-sm font-normal font-sans leading-5 px-3 py-2 rounded-xl shadow-lg resize-none"
+            aria-label="empty textarea"
+            placeholder="Escribe tu solicitud"
+            minRows={3}
+            maxRows={10}
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)} // Maneja el cambio del input
+            onKeyDown={e => e.key === 'Enter' && handleSend()} // Enviar con Enter
+          />
+          <IconButton color="secondary" onClick={handleSend}>
+            <Send />
+          </IconButton>
         </div>
       </div>
     </div>
