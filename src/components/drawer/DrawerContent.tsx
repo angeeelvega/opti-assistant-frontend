@@ -39,7 +39,12 @@ export const DrawerContent = ({ isOpen, isDesktop, onToggle }: DrawerProps) => {
       )}
 
       <List sx={{ pt: isDesktop ? 0 : 1 }}>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+        {[
+          'Lorem Ipsum 1',
+          'Lorem Ipsum 2 ',
+          'Lorem Ipsum 3 ',
+          'Lorem Ipsum 4',
+        ].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
@@ -52,16 +57,18 @@ export const DrawerContent = ({ isOpen, isDesktop, onToggle }: DrawerProps) => {
       </List>
       <Divider />
       <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <Inbox /> : <Mail />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {['Lorem Ipsum 5 ', 'Lorem Ipsum6', 'Lorem Ipsum7'].map(
+          (text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  {index % 2 === 0 ? <Inbox /> : <Mail />}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ),
+        )}
       </List>
     </Box>
   );

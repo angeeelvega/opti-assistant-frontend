@@ -1,14 +1,50 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, Button, Checkbox, FormGroup } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = () => {
-    // Aquí podrías manejar la autenticación
-    // Si el inicio de sesión es exitoso:
-    navigate('/home'); // Redirige a la página principal o donde desees
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!username || !password) {
+      setError('Por favor complete todos los campos');
+      return;
+    }
+
+    if (!acceptTerms) {
+      setError('Debe aceptar los términos y condiciones');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      await login(username, password);
+      navigate('/home');
+    } catch (err) {
+      setError('Usuario o contraseña incorrectos');
+      console.error('Error de login:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      console.log('Login con Google');
+    } catch (err) {
+      setError('Error al iniciar sesión con Google');
+    }
   };
 
   return (
@@ -30,42 +66,56 @@ const Login = () => {
               name="username"
               placeholder="Usuario"
               required
+              value={username}
+              onChange={e => setUsername(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
             />
           </div>
           <div className="mb-4">
-            <input
+            <Input
               type="password"
+              disableUnderline={true}
               id="password"
               name="password"
               placeholder="Contraseña"
               required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
             />
           </div>
           <div className="mb-4 flex items-center">
-            <Checkbox color="secondary" />
-            <label htmlFor="terms" className=" text-gray-600">
+            <Checkbox
+              color="secondary"
+              checked={acceptTerms}
+              onChange={e => setAcceptTerms(e.target.checked)}
+            />
+            <label htmlFor="terms" className="text-gray-600">
               Acepto los términos y condiciones para el tratamiento de mis
               datos.
             </label>
           </div>
+          {error && (
+            <div className="mb-4 text-red-500 text-sm text-center">{error}</div>
+          )}
           <Button
             type="submit"
             variant="contained"
             color="secondary"
-            className="w-full  text-white p-2 rounded-md bg-black "
-            onClick={() => {
-              handleSubmit();
-            }}
+            className="w-full text-white p-2 rounded-md bg-black"
+            onClick={handleSubmit}
+            disabled={loading}
           >
-            Ingresar
+            {loading ? 'Ingresando...' : 'Ingresar'}
           </Button>
+
           <div className="text-center mt-4 w-full">
             <Button
               className="border border-gray-300 p-2 rounded-md w-full"
               color="secondary"
               startIcon={<GoogleIcon />}
+              onClick={handleGoogleLogin}
+              disabled={loading}
             >
               Acceder con Google
             </Button>

@@ -21,7 +21,7 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
             <AttachFile />
           </IconButton>
           <TextareaAutosize
-            className="flex-1 text-sm font-normal font-sans leading-5 px-3 py-2 resize-none border-0 focus:outline-none"
+            className="flex-1 text-sm font-normal font-sans  resize-none border-0 focus:outline-none"
             aria-label="empty textarea"
             placeholder="Escribe tu solicitud..."
             minRows={1}
