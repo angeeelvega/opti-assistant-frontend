@@ -6,13 +6,17 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { Menu } from '@mui/icons-material';
+import { Menu, Logout } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { Message } from '../../types/interfaces';
 import { DrawerContent } from '../../components/Drawer/DrawerContent';
 import { ChatMessages } from '../../components/Chat/ChatMessages';
 import { ChatInput } from '../../components/Chat/ChatInput';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [messages, setMessages] = useState<
     Array<Message | { text: JSX.Element; sender: 'user' | 'bot' }>
   >([]);
@@ -49,6 +53,11 @@ const Home = () => {
         sender: isBot ? 'bot' : 'user',
       },
     ]);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -135,6 +144,13 @@ const Home = () => {
             >
               Opti - Assistant
             </Typography>
+            <IconButton
+              color="secondary"
+              onClick={handleLogout}
+              title="Cerrar sesión"
+            >
+              <Logout />
+            </IconButton>
           </div>
 
           <div className="flex flex-col h-screen pt-16">
