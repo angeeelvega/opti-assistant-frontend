@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import authService from '../../services/authService/AuthService';
 import { User } from '../../types/auth';
 import { LoginError } from '../../types/errors';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
