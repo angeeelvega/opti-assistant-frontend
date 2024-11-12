@@ -8,12 +8,14 @@ import {
 } from '@mui/material';
 import { Menu } from '@mui/icons-material';
 import { Message } from '../../types/interfaces';
-import { DrawerContent } from '../../components/drawer/DrawerContent';
-import { ChatMessages } from '../../components/chat/ChatMessages';
-import { ChatInput } from '../../components/chat/ChatInput';
+import { DrawerContent } from '../../components/Drawer/DrawerContent';
+import { ChatMessages } from '../../components/Chat/ChatMessages';
+import { ChatInput } from '../../components/Chat/ChatInput';
 
 const Home = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<
+    Array<Message | { text: JSX.Element; sender: 'user' | 'bot' }>
+  >([]);
   const [openDesktop, setOpenDesktop] = useState(true);
   const [openMobile, setOpenMobile] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -36,15 +38,17 @@ const Home = () => {
     }
   };
 
-  const handleSendMessage = (text: string) => {
-    setMessages(prev => [...prev, { text, sender: 'user' }]);
-
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        { text: 'Respuesta del bot', sender: 'bot' },
-      ]);
-    }, 1000);
+  const handleSendMessage = (
+    text: string | JSX.Element,
+    isBot: boolean = false,
+  ) => {
+    setMessages(prev => [
+      ...prev,
+      {
+        text,
+        sender: isBot ? 'bot' : 'user',
+      },
+    ]);
   };
 
   return (

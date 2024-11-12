@@ -1,15 +1,36 @@
+import { useState } from 'react';
 import { TextareaAutosize, IconButton } from '@mui/material';
 import { Send, AttachFile } from '@mui/icons-material';
-import { useState } from 'react';
+import { chatService } from '../../services/chatService/ChatService';
 import { ChatInputProps } from '../../types/interfaces';
 
 export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      onSendMessage(inputValue);
+  const handleSend = async () => {
+    if (!inputValue.trim()) return;
+    const userMessage = inputValue.trim();
+
+    try {
+      setIsLoading(true);
       setInputValue('');
+
+      onSendMessage(userMessage, false);
+
+      const response = await chatService.sendMessage({
+        message: userMessage,
+        user_id: '1',
+      });
+
+      if (response.result) {
+        onSendMessage(response.result, true);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      onSendMessage('Lo siento, hubo un error al procesar tu mensaje.', true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -21,7 +42,7 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
             <AttachFile />
           </IconButton>
           <TextareaAutosize
-            className="flex-1 text-sm font-normal font-sans leading-5 px-3 py-2 resize-none border-0 focus:outline-none"
+            className="flex-1 text-sm font-normal font-sans resize-none border-0 focus:outline-none"
             aria-label="empty textarea"
             placeholder="Escribe tu solicitud..."
             minRows={1}
@@ -34,12 +55,13 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
                 handleSend();
               }
             }}
+            disabled={isLoading}
           />
           <IconButton
             color="secondary"
             onClick={handleSend}
             className="mr-2"
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isLoading}
           >
             <Send />
           </IconButton>
