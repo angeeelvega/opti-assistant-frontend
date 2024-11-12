@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { ChatMessagesProps } from '../../types/interfaces';
+import { ChatMessagesProps, Message } from '../../types/interfaces';
 
 export const ChatMessages = ({ messages }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -15,7 +15,7 @@ export const ChatMessages = ({ messages }: ChatMessagesProps) => {
         height: 'calc(100vh - 64px - 88px)',
       }}
     >
-      {messages.map((msg, index) => (
+     {messages.map((msg: Message, index: number) => (
         <div
           key={index}
           className={`flex ${

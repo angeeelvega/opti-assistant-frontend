@@ -1,129 +1,101 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Button, Checkbox, FormGroup } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
 import { useAuth } from '../../context/AuthContext';
+import authService from '../../services/authService/AuthService';
+import { User } from '../../types/auth';
+import { LoginError } from '../../types/errors';
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
+import LoginForm from '../../components/LoginForm';
+import Logo from '../../assets/img/logo-footer.png';
+import { jwtDecode } from 'jwt-decode';
+
+interface GoogleJwtPayload {
+  sub: string;
+  email: string;
+  name: string;
+  picture: string;
+}
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    acceptTerms: false,
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleGoogleCallback = async (response: any) => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const decodedToken = jwtDecode<GoogleJwtPayload>(response.credential);
+
+      const userData: User = {
+        id: decodedToken.sub,
+        email: decodedToken.email,
+        name: decodedToken.name,
+        picture: decodedToken.picture,
+        provider: 'google',
+      };
+
+      await login(userData, response.credential);
+      navigate('/home');
+    } catch (err) {
+      console.error('Error de Google login:', err);
+      setError(LoginError.GOOGLE_ERROR);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useGoogleAuth(handleGoogleCallback);
+
   const handleSubmit = async () => {
-    if (!username || !password) {
-      setError('Por favor complete todos los campos');
+    if (!formData.username || !formData.password) {
+      setError(LoginError.INCOMPLETE_FIELDS);
       return;
     }
 
-    if (!acceptTerms) {
-      setError('Debe aceptar los términos y condiciones');
+    if (!formData.acceptTerms) {
+      setError(LoginError.TERMS_NOT_ACCEPTED);
       return;
     }
 
     try {
       setLoading(true);
       setError('');
-
-      await login(username, password);
+      await login(formData.username, formData.password);
       navigate('/home');
     } catch (err) {
-      setError('Usuario o contraseña incorrectos');
+      setError(LoginError.INVALID_CREDENTIALS);
       console.error('Error de login:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      console.log('Login con Google');
-    } catch (err) {
-      setError('Error al iniciar sesión con Google');
-    }
-  };
-
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="card__container bg-white rounded-lg shadow-lg p-8 max-w-sm w-full mx-6 md:mx-0">
-        <div className="flex justify-center mb-4">
-          <img
-            src="src/assets/img/logo-footer.png"
-            alt="Logo"
-            className="h-12 filter invert brightness-100"
-          />
+        <div className="flex justify-center">
+          <img src={Logo} alt="Logo" className="m-4 h-20 p-4 invert" />
         </div>
-        <FormGroup>
-          <div className="mb-4">
-            <Input
-              type="text"
-              disableUnderline={true}
-              id="username"
-              name="username"
-              placeholder="Usuario"
-              required
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
-            />
-          </div>
-          <div className="mb-4">
-            <Input
-              type="password"
-              disableUnderline={true}
-              id="password"
-              name="password"
-              placeholder="Contraseña"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
-            />
-          </div>
-          <div className="mb-4 flex items-center">
-            <Checkbox
-              color="secondary"
-              checked={acceptTerms}
-              onChange={e => setAcceptTerms(e.target.checked)}
-            />
-            <label htmlFor="terms" className="text-gray-600">
-              Acepto los términos y condiciones para el tratamiento de mis
-              datos.
-            </label>
-          </div>
-          {error && (
-            <div className="mb-4 text-red-500 text-sm text-center">{error}</div>
-          )}
-          <Button
-            type="submit"
-            variant="contained"
-            color="secondary"
-            className="w-full text-white p-2 rounded-md bg-black"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? 'Ingresando...' : 'Ingresar'}
-          </Button>
-
-          <div className="text-center mt-4 w-full">
-            <Button
-              className="border border-gray-300 p-2 rounded-md w-full"
-              color="secondary"
-              startIcon={<GoogleIcon />}
-              onClick={handleGoogleLogin}
-              disabled={loading}
-            >
-              Acceder con Google
-            </Button>
-            <Button className="text-center mt-2 w-full" color="secondary">
-              No tengo usuario de red
-            </Button>
-          </div>
-        </FormGroup>
+        <LoginForm
+          {...formData}
+          error={error}
+          loading={loading}
+          onUsernameChange={username => setFormData({ ...formData, username })}
+          onPasswordChange={password => setFormData({ ...formData, password })}
+          onTermsChange={acceptTerms =>
+            setFormData({ ...formData, acceptTerms })
+          }
+          onSubmit={handleSubmit}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,11 @@
+import { User } from '../../types/auth';
 import axios from 'axios';
 import { LoginResponse } from './interfaces/loginResponse';
+import { encryptionService } from '../encryptionService';
 
 const API_URL = 'tu-api-url'; // TODO USAR ENVIRONMENT
+
+const AUTH_KEY = 'auth_user';
 
 /**
  * @description Servicio que maneja todas las operaciones relacionadas con la autenticación,
@@ -22,9 +26,14 @@ const authService = {
         password,
       });
 
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (response.data) {
+        const encryptedResponse = encryptionService.encrypt(response.data);
+        console.log('encryptedResponse', encryptedResponse);
+        const encryptedToken = encryptionService.encrypt(response.data.token);
+
+        localStorage.setItem('token', encryptedToken);
+        sessionStorage.setItem('loginResponse', encryptedResponse);
+        this.setUser(response.data.user);
       }
 
       return response.data;
@@ -39,7 +48,7 @@ const authService = {
    */
   logout() {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    this.removeUser();
   },
 
   /**
@@ -47,8 +56,8 @@ const authService = {
    * @returns {User|null} Datos del usuario o null si no hay usuario autenticado
    */
   getCurrentUser() {
-    const userStr = localStorage.getItem('user');
-    if (userStr) return JSON.parse(userStr);
+    const user = this.getUser();
+    if (user) return user;
     return null;
   },
 
@@ -57,7 +66,9 @@ const authService = {
    * @returns {string|null} Token de autenticación o null si no existe
    */
   getToken() {
-    return localStorage.getItem('token');
+    const encryptedToken = localStorage.getItem('token');
+    if (!encryptedToken) return null;
+    return encryptionService.decrypt(encryptedToken);
   },
 
   /**
@@ -71,6 +82,50 @@ const authService = {
     } else {
       delete axios.defaults.headers.common['Authorization'];
     }
+  },
+
+  async loginWithGoogle(credential: string): Promise<LoginResponse> {
+    try {
+      const response = await axios.post(`${API_URL}/auth/google`, {
+        credential,
+      });
+
+      if (response.data) {
+        const userData = {
+          id: response.data.user.id,
+          email: response.data.user.email,
+          name: response.data.user.name,
+          picture: response.data.user.picture,
+          provider: response.data.user.provider
+        };
+        
+        const encryptedUser = encryptionService.encrypt(userData);
+        const encryptedToken = encryptionService.encrypt(response.data.token);
+        
+        sessionStorage.setItem('user', encryptedUser);
+        localStorage.setItem('token', encryptedToken);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Error en login con Google:', error);
+      throw error;
+    }
+  },
+
+  setUser: (user: User) => {
+    const encryptedUser = encryptionService.encrypt(user);
+    sessionStorage.setItem(AUTH_KEY, encryptedUser);
+  },
+
+  getUser: (): User | null => {
+    const encryptedUser = sessionStorage.getItem('user');
+    if (!encryptedUser) return null;
+    return encryptionService.decrypt(encryptedUser);
+  },
+
+  removeUser: () => {
+    sessionStorage.removeItem(AUTH_KEY);
   },
 };
 

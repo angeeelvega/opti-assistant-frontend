@@ -1,17 +1,18 @@
 export interface User {
-  username: string;
-  role: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  user: User;
+  id: string;
+  email: string;
+  name: string;
+  picture?: string;
+  provider: 'email' | 'google';
 }
 
 export interface AuthContextType {
   isAuthenticated: boolean;
-  user: any;
-  login: (username: string, password: string) => Promise<boolean>;
+  user: User | null;
+  login: (
+    credentials: string | User,
+    tokenOrPassword?: string,
+  ) => Promise<void>;
   logout: () => void;
 }
 
