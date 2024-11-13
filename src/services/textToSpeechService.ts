@@ -1,38 +1,17 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_IBM_SERVICE_URL;
-const API_KEY = import.meta.env.VITE_IBM_API_KEY;
+import { env } from '../config/env';
 
 export const textToSpeechService = {
   speak: async (text: string): Promise<void> => {
     try {
-      // Primera llamada para ver la respuesta
-      const checkResponse = await axios({
-        method: 'POST',
-        url: `${API_URL}/v1/synthesize?voice=es-LA_SofiaV3Voice`,
-        data: {
-          text: text,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'audio/wav',
-          'Authorization': `Basic ${btoa(`apikey:${API_KEY}`)}`,
-        },
-      });
-
-      console.log('Response completa:', checkResponse);
-
-      // Segunda llamada para obtener el audio
       const response = await axios({
         method: 'POST',
-        url: `${API_URL}/v1/synthesize?voice=es-LA_SofiaV3Voice`,
-        data: {
-          text: text,
-        },
+        url: `${env.IBM_SERVICE_URL}/v1/synthesize?voice=es-LA_SofiaV3Voice`,
+        data: { text },
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'audio/wav',
-          'Authorization': `Basic ${btoa(`apikey:${API_KEY}`)}`,
+          'Authorization': `Basic ${btoa(`apikey:${env.IBM_API_KEY}`)}`,
         },
         responseType: 'blob',
       });
