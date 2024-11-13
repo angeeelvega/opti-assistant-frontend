@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TextareaAutosize, IconButton } from '@mui/material';
 import { Send, AttachFile } from '@mui/icons-material';
-import { chatService } from '../../services/chatService/ChatService';
+import { chatService } from '../../services/ChatService';
 import { ChatInputProps } from '../../types/interfaces';
 
 export const ChatInput = ({ onSendMessage }: ChatInputProps) => {

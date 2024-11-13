@@ -11,7 +11,7 @@ import {
 import { Inbox, Mail, Menu } from '@mui/icons-material';
 import { DrawerProps } from '../../types/interfaces';
 
-export const DrawerContent = ({ isOpen, isDesktop, onToggle }: DrawerProps) => {
+export const Drawer = ({ isOpen, isDesktop, onToggle }: DrawerProps) => {
   return (
     <Box
       sx={{
