@@ -25,13 +25,8 @@ const Home = () => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   useEffect(() => {
-    if (isDesktop) {
-      setOpenDesktop(true);
-      setOpenMobile(false);
-    } else {
-      setOpenDesktop(false);
-      setOpenMobile(false);
-    }
+    setOpenDesktop(isDesktop);
+    setOpenMobile(false);
   }, [isDesktop]);
 
   const toggleMenu = () => {
