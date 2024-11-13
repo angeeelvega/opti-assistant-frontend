@@ -144,16 +144,25 @@ const Home = () => {
           </IconButton>
         </div>
 
-        <div className="flex justify-center pt-16">
-          <Paper
+        <div 
+          className="flex justify-center"
+          style={{
+            position: 'fixed',
+            top: '64px',
+            bottom: 0,
+            right: 0,
+            left: isDesktop && openDesktop ? '250px' : '0',
+            transition: 'left 0.3s',
+          }}
+        >
+          <Paper 
+            elevation={0}
+            className="flex flex-col w-full"
             sx={{
+              maxWidth: isDesktop ? '800px' : '100%',
               boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)',
-              backgroundColor: 'primary.main',
-              width: '800px',
-              maxWidth: '100%',
-              height: 'calc(100vh - 64px)',
+              height: '100%'
             }}
-            className="flex flex-col shadow-lg"
           >
             <ChatMessages messages={messages} />
             <ChatInput onSendMessage={handleSendMessage} />
