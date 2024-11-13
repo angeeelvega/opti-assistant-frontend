@@ -15,7 +15,7 @@ export const env = {
     ];
 
     const missingVars = requiredVars.filter(
-      varName => !this[varName as keyof typeof env],
+      varName => !env[varName as keyof typeof env]
     );
 
     if (missingVars.length > 0) {
