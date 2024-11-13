@@ -1,5 +1,5 @@
 import axios from 'axios';
-import authService from '../AuthService';
+import authService from '../services/AuthService';
 
 /**
  * @description Interceptor de solicitudes que agrega automáticamente el token de autorización

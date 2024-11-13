@@ -1,7 +1,7 @@
-import { User } from '../../types/auth';
+import { User } from '../types/auth';
 import axios from 'axios';
-import { LoginResponse } from './interfaces/loginResponse';
-import { encryptionService } from '../encryptionService';
+import { LoginResponse } from '../types/loginResponse';
+import { encryptionService } from './encryptionService';
 
 const API_URL = 'tu-api-url'; // TODO USAR ENVIRONMENT
 
@@ -96,12 +96,12 @@ const authService = {
           email: response.data.user.email,
           name: response.data.user.name,
           picture: response.data.user.picture,
-          provider: response.data.user.provider
+          provider: response.data.user.provider,
         };
-        
+
         const encryptedUser = encryptionService.encrypt(userData);
         const encryptedToken = encryptionService.encrypt(response.data.token);
-        
+
         sessionStorage.setItem('user', encryptedUser);
         localStorage.setItem('token', encryptedToken);
       }
