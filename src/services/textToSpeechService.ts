@@ -6,7 +6,7 @@ export const textToSpeechService = {
     try {
       const response = await axios({
         method: 'POST',
-        url: `${env.IBM_SERVICE_URL}/v1/synthesize?voice=es-LA_SofiaV3Voice`,
+        url: `${env.IBM_SERVICE_URL}/v1/synthesize?voice=es-LA_DanielaExpressive`,
         data: { text },
         headers: {
           'Content-Type': 'application/json',
