@@ -1,12 +1,24 @@
-import { useState } from 'react';
-import { TextareaAutosize, IconButton } from '@mui/material';
+import { useState, useRef } from 'react';
+import {
+  TextareaAutosize,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import { Send, AttachFile } from '@mui/icons-material';
 import { chatService } from '../../services/ChatService';
+import { uploadService } from '../../services/uploadService';
 import { ChatInputProps } from '../../types/interfaces';
 
 export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errorModal, setErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSend = async () => {
     if (!inputValue.trim()) return;
@@ -34,11 +46,48 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
     }
   };
 
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsLoading(true);
+      const response = await uploadService.uploadPDF(file);
+      if (response) {
+        onSendMessage(response, true);
+      }
+    } catch (error) {
+      setErrorMessage('Error al subir el archivo PDF');
+      setErrorModal(true);
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="border-t border-gray-200 bg-white">
       <div className="p-4">
         <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm border border-gray-200">
-          <IconButton color="secondary" size="small" className="ml-2">
+          <input
+            type="file"
+            accept=".pdf"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+          />
+          <IconButton
+            color="secondary"
+            size="small"
+            className="ml-2"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isLoading}
+          >
             <AttachFile />
           </IconButton>
           <TextareaAutosize
@@ -67,6 +116,15 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
           </IconButton>
         </div>
       </div>
+      <Dialog open={errorModal} onClose={() => setErrorModal(false)}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>{errorMessage}</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setErrorModal(false)} color="secondary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
