@@ -2,8 +2,11 @@ import { User } from '../types/auth';
 import axios from 'axios';
 import { LoginResponse } from '../types/loginResponse';
 import { encryptionService } from './encryptionService';
+import { env } from '../config/env';
 
-const API_URL = 'tu-api-url'; // TODO USAR ENVIRONMENT
+const API_URL = axios.create({
+  baseURL: env.CHAT_API_URL,
+});
 
 const AUTH_KEY = 'auth_user';
 

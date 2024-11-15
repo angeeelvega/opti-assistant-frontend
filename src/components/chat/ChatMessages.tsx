@@ -1,28 +1,36 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { ChatMessagesProps, Message } from '../../types/interfaces';
 import { VolumeUp } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { IconButton, CircularProgress } from '@mui/material';
+import { textToSpeechService } from '../../services/textToSpeechService';
 
 export const ChatMessages = ({ messages }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [playingMessageId, setPlayingMessageId] = useState<number | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSpeak = (text: string | JSX.Element) => {
-    if (typeof text === 'string') {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
+  const handleSpeak = async (text: string | JSX.Element, messageId: number) => {
+    if (typeof text !== 'string' || playingMessageId !== null) return;
+
+    try {
+      setPlayingMessageId(messageId);
+      await textToSpeechService.speak(text);
+    } catch (error) {
+      console.error('Error al reproducir mensaje:', error);
+      // Aquí podrías mostrar un toast o notificación de error
+    } finally {
+      setPlayingMessageId(null);
     }
   };
 
   return (
-    <div
-      className="flex-1 overflow-y-auto p-4"
-      style={{
-        height: 'calc(100vh - 64px - 88px)',
+    <div 
+      className="flex-1 overflow-y-auto p-4" 
+      style={{ 
+        height: 'calc(100vh - 128px)'
       }}
     >
       {messages.map((msg: Message, index: number) => (
@@ -43,11 +51,16 @@ export const ChatMessages = ({ messages }: ChatMessagesProps) => {
               <div>{msg.text}</div>
               {msg.sender === 'bot' && (
                 <IconButton
-                  onClick={() => handleSpeak(msg.text)}
+                  onClick={() => handleSpeak(msg.text, index)}
                   size="small"
                   className="ml-1 text-gray-600 hover:text-gray-800"
+                  disabled={playingMessageId !== null}
                 >
-                  <VolumeUp fontSize="small" />
+                  {playingMessageId === index ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <VolumeUp fontSize="small" />
+                  )}
                 </IconButton>
               )}
             </div>
