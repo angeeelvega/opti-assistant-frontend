@@ -1,18 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Message } from '../types/interfaces';
 import { chatService } from '../services/ChatService';
+import { authService } from '../services/AuthService';
 
 export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const user = authService.getUser();
+    console.log('user', user);
+    if (user?.name) {
+      setMessages([
+        {
+          text: `¡Hola ${user.name}! ¿En qué puedo ayudarte hoy?`,
+          sender: 'bot',
+        },
+      ]);
+    }
+  }, []);
 
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
 
     try {
       setIsLoading(true);
-
-      // Agregar mensaje del usuario
       setMessages(prev => [...prev, { text, sender: 'user' }]);
 
       const response = await chatService.sendMessage({
@@ -20,7 +32,6 @@ export const useChat = () => {
         user_id: '1',
       });
 
-      // Agregar respuesta del bot
       if (response.result) {
         setMessages(prev => [
           ...prev,

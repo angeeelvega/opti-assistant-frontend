@@ -14,7 +14,7 @@ const AUTH_KEY = 'auth_user';
  * @description Servicio que maneja todas las operaciones relacionadas con la autenticación,
  * incluyendo el manejo de tokens, datos de usuario y headers de autorización
  */
-const authService = {
+export const authService = {
   /**
    * @description Realiza la autenticación del usuario contra el backend y almacena el token y datos del usuario
    * @param {string} username - Nombre de usuario o correo electrónico

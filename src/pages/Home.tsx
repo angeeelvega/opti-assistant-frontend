@@ -16,10 +16,15 @@ import { ChatInput } from '../components/Chat/ChatInput';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [messages, setMessages] = useState<
     Array<Message | { text: JSX.Element; sender: 'user' | 'bot' }>
-  >([]);
+  >(() => [
+    {
+      text: `¡Hola ${user?.name || ''}! ¿En qué puedo ayudarte hoy?`,
+      sender: 'bot'
+    }
+  ]);
   const [openDesktop, setOpenDesktop] = useState(true);
   const [openMobile, setOpenMobile] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
