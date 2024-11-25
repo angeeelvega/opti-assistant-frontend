@@ -9,7 +9,6 @@ import {
   Button,
 } from '@mui/material';
 import { Send, AttachFile, PictureAsPdf, Mic, Stop } from '@mui/icons-material';
-import { chatService } from '../../services/ChatService';
 import { uploadService } from '../../services/uploadService';
 import { speechToTextService } from '../../services/speechToTextService';
 import { ChatInputProps } from '../../types/interfaces';
@@ -31,20 +30,9 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
     try {
       setIsLoading(true);
       setInputValue('');
-
-      onSendMessage(userMessage, false);
-
-      const response = await chatService.sendMessage({
-        message: userMessage,
-        user_id: '1',
-      });
-
-      if (response.result) {
-        onSendMessage(response.result, true);
-      }
+      onSendMessage(userMessage, true);
     } catch (error) {
       console.error('Error sending message:', error);
-      onSendMessage('Lo siento, hubo un error al procesar tu mensaje.', true);
     } finally {
       setIsLoading(false);
     }
@@ -85,19 +73,19 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+
       const mimeType = MediaRecorder.isTypeSupported('audio/webm')
         ? 'audio/webm'
         : 'audio/mp4';
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType,
-        audioBitsPerSecond: 16000
+        audioBitsPerSecond: 16000,
       });
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (e) => {
+      mediaRecorder.ondataavailable = e => {
         if (e.data.size > 0) {
           chunksRef.current.push(e.data);
         }
