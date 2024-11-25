@@ -27,9 +27,12 @@ export const useChat = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { text, sender: 'user' }]);
 
+      const user = authService.getUser();
+      if (!user?.id) throw new Error('Usuario no encontrado');
+
       const response = await chatService.sendMessage({
         message: text.trim(),
-        user_id: '1',
+        user_id: user.id,
       });
 
       if (response.result) {

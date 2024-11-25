@@ -7,6 +7,7 @@ import { useGoogleAuth } from '../hooks/useGoogleAuth';
 import LoginForm from '../components/Auth/LoginForm';
 import Logo from '../assets/img/logo-footer.png';
 import { jwtDecode } from 'jwt-decode';
+import { userService } from '../services/userService';
 
 interface GoogleJwtPayload {
   sub: string;
@@ -33,13 +34,16 @@ const Login = () => {
       setError('');
 
       const decodedToken = jwtDecode<GoogleJwtPayload>(response.credential);
+      
+      const userId = await userService.getUserIdByGoogleId(decodedToken.sub);
 
       const userData: User = {
-        id: decodedToken.sub,
+        id: userId,
         email: decodedToken.email,
         name: decodedToken.name,
         picture: decodedToken.picture,
         provider: 'google',
+        google_id: decodedToken.sub
       };
 
       await login(userData, response.credential);

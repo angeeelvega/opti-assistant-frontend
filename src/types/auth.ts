@@ -4,6 +4,7 @@ export interface User {
   name: string;
   picture?: string;
   provider: 'email' | 'google';
+  google_id?: string;
 }
 
 export interface AuthContextType {
