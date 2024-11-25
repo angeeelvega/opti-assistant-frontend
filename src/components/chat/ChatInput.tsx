@@ -30,7 +30,7 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
     try {
       setIsLoading(true);
       setInputValue('');
-      onSendMessage(userMessage, true);
+      onSendMessage(userMessage, false);
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {

@@ -13,5 +13,5 @@ export interface DrawerProps {
 }
 
 export interface ChatInputProps {
-  onSendMessage: (message: string | JSX.Element, isUserMessage: boolean) => void;
+  onSendMessage: (message: string | JSX.Element, isBotMessage: boolean) => void;
 }
