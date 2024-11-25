@@ -2,23 +2,17 @@ import { useState, useEffect } from 'react';
 import { Message } from '../types/interfaces';
 import { chatService } from '../services/ChatService';
 import { authService } from '../services/AuthService';
+import { useAuth } from '../context/AuthContext';
 
 export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { user } = useAuth();
+  const [messages, setMessages] = useState<Array<Message>>(() => [
+    {
+      text: `¡Hola ${user?.name || ''}! ¿En qué puedo ayudarte hoy?`,
+      sender: 'bot',
+    },
+  ]);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const user = authService.getUser();
-    console.log('user', user);
-    if (user?.name) {
-      setMessages([
-        {
-          text: `¡Hola ${user.name}! ¿En qué puedo ayudarte hoy?`,
-          sender: 'bot',
-        },
-      ]);
-    }
-  }, []);
 
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -59,5 +53,6 @@ export const useChat = () => {
     messages,
     isLoading,
     sendMessage,
+    setMessages,
   };
 };

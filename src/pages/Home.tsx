@@ -9,22 +9,15 @@ import {
 import { Menu, Logout } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Message } from '../types/interfaces';
 import { Drawer } from '../components/Layout/Drawer';
 import { ChatMessages } from '../components/Chat/ChatMessages';
 import { ChatInput } from '../components/Chat/ChatInput';
+import { useChat } from '../hooks/useChat';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
-  const [messages, setMessages] = useState<
-    Array<Message | { text: JSX.Element; sender: 'user' | 'bot' }>
-  >(() => [
-    {
-      text: `¡Hola ${user?.name || ''}! ¿En qué puedo ayudarte hoy?`,
-      sender: 'bot'
-    }
-  ]);
+  const { logout } = useAuth();
+  const { messages, sendMessage, setMessages } = useChat();
   const [openDesktop, setOpenDesktop] = useState(true);
   const [openMobile, setOpenMobile] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -42,17 +35,21 @@ const Home = () => {
     }
   };
 
-  const handleSendMessage = (
+  const handleSendMessage = async (
     text: string | JSX.Element,
     isBot: boolean = false,
   ) => {
-    setMessages(prev => [
-      ...prev,
-      {
-        text,
-        sender: isBot ? 'bot' : 'user',
-      },
-    ]);
+    if (typeof text === 'string' && !isBot) {
+      await sendMessage(text);
+    } else {
+      setMessages(prev => [
+        ...prev,
+        {
+          text,
+          sender: isBot ? 'bot' : 'user',
+        },
+      ]);
+    }
   };
 
   const handleLogout = () => {
@@ -149,7 +146,7 @@ const Home = () => {
           </IconButton>
         </div>
 
-        <div 
+        <div
           className="flex justify-center"
           style={{
             position: 'fixed',
@@ -160,13 +157,13 @@ const Home = () => {
             transition: 'left 0.3s',
           }}
         >
-          <Paper 
+          <Paper
             elevation={0}
             className="flex flex-col w-full"
             sx={{
               maxWidth: isDesktop ? '800px' : '100%',
               boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)',
-              height: '100%'
+              height: '100%',
             }}
           >
             <ChatMessages messages={messages} />
