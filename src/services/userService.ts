@@ -5,7 +5,7 @@ export const userService = {
   async getUserIdByGoogleId(googleId: string): Promise<string> {
     try {
       const response = await axios.post(
-        `${env.CHAT_API_URL}/api/consultar_googleid`,
+        `${env.CHAT_API_URL}/auth/google/consultar_googleid`,
         {
           google_id: googleId,
         },
