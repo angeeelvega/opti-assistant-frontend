@@ -1,7 +1,6 @@
 export interface Message {
   text: string | JSX.Element;
   sender: 'user' | 'bot';
-  files?: Array<{ name: string; value: string }>;
 }
 
 export interface ChatMessagesProps {

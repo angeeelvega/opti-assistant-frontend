@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Message } from '../types/interfaces';
 import { chatService } from '../services/ChatService';
 import { authService } from '../services/AuthService';
