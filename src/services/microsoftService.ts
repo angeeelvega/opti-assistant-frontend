@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { env } from '../config/env';
 
-export const userService = {
-  async getUserIdByGoogleId(googleId: string): Promise<string> {
+export const microsoftService = {
+  async getUserIdByMicrosoftId(microsoftId: string): Promise<string> {
     try {
       const response = await axios.post(
-        `${env.CHAT_API_URL}/auth/google/consultar_googleid`,
+        `${env.CHAT_API_URL}/auth/microsoft/consultar_microsoftid`,
         {
-          google_id: googleId,
+          microsoft_id: microsoftId,
         },
       );
 
