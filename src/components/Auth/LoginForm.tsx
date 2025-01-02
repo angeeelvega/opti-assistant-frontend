@@ -1,5 +1,5 @@
-import { Input, Button, Checkbox, FormGroup } from '@mui/material';
-import { useMicrosoftAuth } from '../../hooks/useMicrosoftAuth';
+import { Button, Checkbox, FormGroup, Input } from '@mui/material';
+import { User } from '../../types/auth';
 
 interface LoginFormProps {
   username: string;
@@ -11,6 +11,8 @@ interface LoginFormProps {
   onPasswordChange: (value: string) => void;
   onTermsChange: (checked: boolean) => void;
   onSubmit: () => void;
+  onSuccess?: (userData: User, token: string) => Promise<void>;
+  handleMicrosoftLogin: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
 }
 
 const LoginForm = ({
@@ -23,18 +25,8 @@ const LoginForm = ({
   onPasswordChange,
   onTermsChange,
   onSubmit,
+  handleMicrosoftLogin,
 }: LoginFormProps) => {
-  const handleMicrosoftCallback = async (userData: any) => {
-    try {
-      // Lógica para manejar el login exitoso con Microsoft
-      console.log('Microsoft login successful:', userData);
-    } catch (err) {
-      console.error('Error de Microsoft login:', err);
-    }
-  };
-
-  useMicrosoftAuth(handleMicrosoftCallback);
-
   return (
     <FormGroup>
       <div className="mb-4">
@@ -88,9 +80,56 @@ const LoginForm = ({
       </Button>
 
       <div className="text-center mt-6 w-full">
-        <div id="googleButton" className="flex justify-center"></div>
-        <div id="MicrosoftButton" className="flex justify-center mt-4"></div>
-        <Button className="text-center w-full mb-5" color="secondary">
+        <div className="flex justify-center gap-4 mb-4">
+          <div id="googleButton" className="flex justify-center"></div>
+          <div id="microsoftButton">
+            <Button
+              variant="contained"
+              className="flex items-center justify-center rounded-md"
+              style={{
+                textTransform: 'none',
+                backgroundColor: '#000000',
+                height: '40px',
+                width: '40px',
+                minWidth: '40px',
+                padding: 0,
+                color: '#ffffff',
+              }}
+              onClick={handleMicrosoftLogin}
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect x="1" y="1" width="10.5" height="10.5" fill="#F25022" />
+                <rect
+                  x="1"
+                  y="12.5"
+                  width="10.5"
+                  height="10.5"
+                  fill="#00A4EF"
+                />
+                <rect
+                  x="12.5"
+                  y="1"
+                  width="10.5"
+                  height="10.5"
+                  fill="#7FBA00"
+                />
+                <rect
+                  x="12.5"
+                  y="12.5"
+                  width="10.5"
+                  height="10.5"
+                  fill="#FFB900"
+                />
+              </svg>
+            </Button>
+          </div>
+        </div>
+        <Button className="text-center w-full mb-5 mt-4" color="secondary">
           No tengo usuario de red
         </Button>
       </div>

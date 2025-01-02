@@ -21,9 +21,9 @@ export const useGoogleAuth = (
       window.google.accounts.id.renderButton(
         document.getElementById('googleButton')!,
         {
+          type: 'icon',
           theme: 'filled_black',
           size: 'large',
-          type: 'standard',
         },
       );
     }

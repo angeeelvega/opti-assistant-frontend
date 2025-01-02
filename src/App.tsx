@@ -5,16 +5,24 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './routes/AppRoutes';
+import { MsalProvider } from '@azure/msal-react';
+import { IPublicClientApplication } from '@azure/msal-browser';
 
-function App() {
+interface AppProps {
+  instance: IPublicClientApplication;
+}
+
+function App({ instance }: AppProps) {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <AppRoutes />
-        </ThemeProvider>
-      </AuthProvider>
+      <MsalProvider instance={instance}>
+        <AuthProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <AppRoutes />
+          </ThemeProvider>
+        </AuthProvider>
+      </MsalProvider>
     </BrowserRouter>
   );
 }

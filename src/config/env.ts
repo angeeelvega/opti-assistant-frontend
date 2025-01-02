@@ -7,6 +7,12 @@ export const env = {
   IBM_SPEECH_TO_TEXT_SERVICE_URL: import.meta.env
     .VITE_IBM_SPEECH_TO_TEXT_SERVICE_URL,
   IBM_SPEECH_TO_TEXT_API_KEY: import.meta.env.VITE_IBM_SPEECH_TO_TEXT_API_KEY,
+  AUTHORITY: import.meta.env.VITE_AUTHORITY,
+  REDIRECT_PATH: import.meta.env.VITE_REDIRECT_PATH,
+  SCOPE: import.meta.env.VITE_SCOPE,
+  MICROSOFT_AUTHORITY: import.meta.env.VITE_MICROSOFT_AUTHORITY,
+  MICROSOFT_REDIRECT_URI: import.meta.env.VITE_MICROSOFT_REDIRECT_URI,
+  MICROSOFT_SCOPE: import.meta.env.VITE_MICROSOFT_SCOPE,
   validate() {
     const requiredVars = [
       'IBM_SERVICE_URL',
@@ -15,6 +21,8 @@ export const env = {
       'CHAT_API_URL',
       'IBM_SPEECH_TO_TEXT_SERVICE_URL',
       'IBM_SPEECH_TO_TEXT_API_KEY',
+      'MICROSOFT_CLIENT_ID',
+      'MICROSOFT_AUTHORITY',
     ];
 
     const missingVars = requiredVars.filter(

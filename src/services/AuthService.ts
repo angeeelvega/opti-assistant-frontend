@@ -117,14 +117,19 @@ export const authService = {
   },
 
   setUser: (user: User) => {
-    const encryptedUser = encryptionService.encrypt(user);
-    sessionStorage.setItem(AUTH_KEY, encryptedUser);
+    const encryptedUser = encryptionService.encrypt(JSON.stringify(user));
+    sessionStorage.setItem('auth_user', encryptedUser);
   },
 
   getUser: (): User | null => {
-    const encryptedUser = sessionStorage.getItem('user');
-    if (!encryptedUser) return null;
-    return encryptionService.decrypt(encryptedUser);
+    try {
+      const encryptedUser = sessionStorage.getItem('auth_user');
+      if (!encryptedUser) return null;
+      return JSON.parse(encryptionService.decrypt(encryptedUser));
+    } catch (error) {
+      console.error('Error getting user:', error);
+      return null;
+    }
   },
 
   removeUser: () => {
