@@ -95,17 +95,17 @@ export const authService = {
 
       if (response.data) {
         const userData = {
-          id: response.data.user.id,
+          id: response.data.user.id.toString(),
           email: response.data.user.email,
           name: response.data.user.name,
           picture: response.data.user.picture,
           provider: response.data.user.provider,
+          google_id: response.data.user.google_id,
         };
 
-        const encryptedUser = encryptionService.encrypt(userData);
+        this.setUser(userData);
+        
         const encryptedToken = encryptionService.encrypt(response.data.token);
-
-        sessionStorage.setItem('user', encryptedUser);
         localStorage.setItem('token', encryptedToken);
       }
 
@@ -117,7 +117,7 @@ export const authService = {
   },
 
   setUser: (user: User) => {
-    const encryptedUser = encryptionService.encrypt(JSON.stringify(user));
+    const encryptedUser = encryptionService.encrypt(user);
     sessionStorage.setItem('auth_user', encryptedUser);
   },
 
@@ -125,7 +125,7 @@ export const authService = {
     try {
       const encryptedUser = sessionStorage.getItem('auth_user');
       if (!encryptedUser) return null;
-      return JSON.parse(encryptionService.decrypt(encryptedUser));
+      return encryptionService.decrypt(encryptedUser);
     } catch (error) {
       console.error('Error getting user:', error);
       return null;
