@@ -11,7 +11,10 @@ export const userService = {
         },
       );
 
-      return response.data.user_id;
+      const userId = response.data.user_id.toString();
+      sessionStorage.setItem('user_id', userId);
+
+      return userId;
     } catch (error) {
       console.error('Error consultando user_id:', error);
       throw new Error('Error al obtener el user_id');

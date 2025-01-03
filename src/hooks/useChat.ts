@@ -21,12 +21,21 @@ export const useChat = () => {
       setIsLoading(true);
       setMessages(prev => [...prev, { text, sender: 'user' }]);
 
-      const user = authService.getUser();
-      if (!user?.id) throw new Error('Usuario no encontrado');
+      let userId = sessionStorage.getItem('user_id');
+      
+      if (!userId) {
+        const authUser = sessionStorage.getItem('auth_user');
+        if (authUser) {
+          const user = JSON.parse(authUser);
+          userId = user.id;
+        }
+      }
+
+      if (!userId) throw new Error('Usuario no encontrado');
 
       const response = await chatService.sendMessage({
         message: text.trim(),
-        user_id: user.id,
+        user_id: userId,
       });
 
       if (response.result) {
