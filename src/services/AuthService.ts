@@ -100,13 +100,13 @@ export const authService = {
           name: response.data.user.name,
           picture: response.data.user.picture,
           provider: response.data.user.provider,
+          google_id: response.data.user.google_id,
         };
 
-        const encryptedUser = encryptionService.encrypt(userData);
         const encryptedToken = encryptionService.encrypt(response.data.token);
-
-        sessionStorage.setItem('user', encryptedUser);
         localStorage.setItem('token', encryptedToken);
+        
+        this.setUser(userData);
       }
 
       return response.data;

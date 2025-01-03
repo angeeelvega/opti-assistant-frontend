@@ -34,7 +34,7 @@ const Login = () => {
       setError('');
 
       const decodedToken = jwtDecode<GoogleJwtPayload>(response.credential);
-
+      
       const userId = await userService.getUserIdByGoogleId(decodedToken.sub);
 
       const userData: User = {
