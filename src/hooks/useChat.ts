@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import { Message } from '../types/interfaces';
 import { chatService } from '../services/ChatService';
+import { authService } from '../services/AuthService';
+import { useAuth } from '../context/AuthContext';
 
 export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { user } = useAuth();
+  const [messages, setMessages] = useState<Array<Message>>(() => [
+    {
+      text: `¡Hola ${user?.name || ''}! ¿En qué puedo ayudarte hoy?`,
+      sender: 'bot',
+    },
+  ]);
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = async (text: string) => {
@@ -11,16 +19,25 @@ export const useChat = () => {
 
     try {
       setIsLoading(true);
-
-      // Agregar mensaje del usuario
       setMessages(prev => [...prev, { text, sender: 'user' }]);
+
+      let userId = sessionStorage.getItem('user_id');
+      
+      if (!userId) {
+        const authUser = sessionStorage.getItem('auth_user');
+        if (authUser) {
+          const user = JSON.parse(authUser);
+          userId = user.id;
+        }
+      }
+
+      if (!userId) throw new Error('Usuario no encontrado');
 
       const response = await chatService.sendMessage({
         message: text.trim(),
-        user_id: '1',
+        user_id: userId,
       });
 
-      // Agregar respuesta del bot
       if (response.result) {
         setMessages(prev => [
           ...prev,
@@ -45,5 +62,6 @@ export const useChat = () => {
     messages,
     isLoading,
     sendMessage,
+    setMessages,
   };
 };

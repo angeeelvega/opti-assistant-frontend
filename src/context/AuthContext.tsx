@@ -1,42 +1,53 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 import { User, AuthContextType } from '../types/auth';
+import { useMsal } from '@azure/msal-react';
 import { encryptionService } from '../services/encryptionService';
+import { authService } from '../services/AuthService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * @description Hook personalizado que facilita el acceso al contexto de autenticación
- * desde cualquier componente de la aplicación. Proporciona acceso al estado de
- * autenticación y las funciones de login/logout
- */
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe usarse dentro de un AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
 
-/**
- * @description Componente principal que gestiona la autenticación en la aplicación.
- * Proporciona el contexto de autenticación y maneja el estado global de la sesión del usuario,
- * incluyendo el almacenamiento en sessionStorage y las redirecciones automáticas.
- */
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('isAuthenticated') === 'true';
-  });
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const { instance } = useMsal();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  const [user, setUser] = useState<User | null>(() => {
-    const encryptedUser = sessionStorage.getItem('user');
-    if (!encryptedUser) return null;
-    try {
-      return encryptionService.decrypt(encryptedUser);
-    } catch (error) {
-      console.error('Error decrypting user:', error);
-      return null;
-    }
-  });
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const accounts = instance.getAllAccounts();
+        if (accounts.length > 0) {
+          const msalAccount = accounts[0];
+          instance.setActiveAccount(msalAccount);
+          const user = authService.getUser();
+          if (user) {
+            setUser(user);
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error en initializeAuth:', error);
+        sessionStorage.clear();
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    };
+
+    initializeAuth();
+  }, [instance]);
 
   /**
    * @description Función asíncrona que maneja el proceso de inicio de sesión.
@@ -47,62 +58,67 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     credentials: string | User,
     tokenOrPassword?: string,
   ): Promise<void> => {
-    // Si es login con Google (credentials es User)
-    if (typeof credentials === 'object') {
-      const encryptedUser = encryptionService.encrypt(credentials);
-      const encryptedToken = tokenOrPassword
-        ? encryptionService.encrypt(tokenOrPassword)
-        : null;
+    try {
+      if (typeof credentials === 'string') {
+        // Login con username/password
+        if (credentials === 'admin' && tokenOrPassword === 'admin123') {
+          const userData: User = {
+            id: '1',
+            email: 'admin@example.com',
+            name: 'Admin',
+            provider: 'email',
+          };
+          const encryptedUser = encryptionService.encrypt(
+            JSON.stringify(userData),
+          );
 
-      setUser(credentials);
-      setIsAuthenticated(true);
-      sessionStorage.setItem('user', encryptedUser);
-      sessionStorage.setItem('isAuthenticated', 'true');
-      if (encryptedToken) {
-        sessionStorage.setItem('token', encryptedToken);
-      }
-    }
-    // Si es login normal
-    else if (typeof credentials === 'string' && tokenOrPassword) {
-      if (credentials === 'admin' && tokenOrPassword === 'admin123') {
-        const userData: User = {
-          id: '1',
-          email: 'admin@example.com',
-          name: 'Admin',
-          provider: 'email',
-        };
-        const encryptedUser = encryptionService.encrypt(userData);
-        setUser(userData);
-        setIsAuthenticated(true);
+          sessionStorage.setItem('user', encryptedUser);
+          sessionStorage.setItem('isAuthenticated', 'true');
+
+          setUser(userData);
+          setIsAuthenticated(true);
+        } else {
+          throw new Error('Invalid credentials');
+        }
+      } else {
+        // Login con provider (Google/Microsoft)
+        const encryptedUser = encryptionService.encrypt(
+          JSON.stringify(credentials),
+        );
+        const encryptedToken = tokenOrPassword
+          ? encryptionService.encrypt(tokenOrPassword)
+          : null;
+
         sessionStorage.setItem('user', encryptedUser);
         sessionStorage.setItem('isAuthenticated', 'true');
+        if (encryptedToken) {
+          localStorage.setItem('token', encryptedToken);
+        }
+
+        setUser(credentials);
+        setIsAuthenticated(true);
       }
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
     }
   };
 
-  /**
-   * @description Función que gestiona el cierre de sesión del usuario.
-   * Limpia el estado de autenticación, elimina los datos de sessionStorage
-   * y redirecciona al usuario a la página de login
-   */
-  const logout = () => {
+  const logout = async () => {
     setIsAuthenticated(false);
     setUser(null);
-    sessionStorage.removeItem('isAuthenticated');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('token');
+    sessionStorage.clear();
+    localStorage.clear();
+
+    // Logout de Microsoft
+    await instance.logoutRedirect({
+      postLogoutRedirectUri: 'http://localhost:5173/login',
+    });
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        user,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}

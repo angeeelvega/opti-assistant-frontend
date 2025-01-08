@@ -12,7 +12,7 @@ export const chatService = {
     user_id,
   }: SendMessageParams): Promise<ChatResponse> => {
     try {
-      const response = await api.post('/chat', {
+      const response = await api.post('/api/chat', {
         message: message.trim(),
         user_id,
       });

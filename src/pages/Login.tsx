@@ -4,9 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { User } from '../types/auth';
 import { LoginError } from '../types/errors';
 import { useGoogleAuth } from '../hooks/useGoogleAuth';
+import { useMicrosoftAuth } from '../hooks/useMicrosoftAuth';
 import LoginForm from '../components/Auth/LoginForm';
 import Logo from '../assets/img/logo-footer.png';
 import { jwtDecode } from 'jwt-decode';
+import { userService } from '../services/userService';
 
 interface GoogleJwtPayload {
   sub: string;
@@ -18,7 +20,6 @@ interface GoogleJwtPayload {
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -34,12 +35,15 @@ const Login = () => {
 
       const decodedToken = jwtDecode<GoogleJwtPayload>(response.credential);
 
+      const userId = await userService.getUserIdByGoogleId(decodedToken.sub);
+
       const userData: User = {
-        id: decodedToken.sub,
+        id: userId,
         email: decodedToken.email,
         name: decodedToken.name,
         picture: decodedToken.picture,
         provider: 'google',
+        google_id: decodedToken.sub,
       };
 
       await login(userData, response.credential);
@@ -51,6 +55,9 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const { handleMicrosoftLogin } = useMicrosoftAuth();
+
 
   useGoogleAuth(handleGoogleCallback);
 
@@ -94,6 +101,7 @@ const Login = () => {
             setFormData({ ...formData, acceptTerms })
           }
           onSubmit={handleSubmit}
+          handleMicrosoftLogin={handleMicrosoftLogin}
         />
       </div>
     </div>

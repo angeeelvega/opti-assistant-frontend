@@ -14,7 +14,7 @@ const AUTH_KEY = 'auth_user';
  * @description Servicio que maneja todas las operaciones relacionadas con la autenticación,
  * incluyendo el manejo de tokens, datos de usuario y headers de autorización
  */
-const authService = {
+export const authService = {
   /**
    * @description Realiza la autenticación del usuario contra el backend y almacena el token y datos del usuario
    * @param {string} username - Nombre de usuario o correo electrónico
@@ -30,12 +30,8 @@ const authService = {
       });
 
       if (response.data) {
-        const encryptedResponse = encryptionService.encrypt(response.data);
-        console.log('encryptedResponse', encryptedResponse);
         const encryptedToken = encryptionService.encrypt(response.data.token);
-
         localStorage.setItem('token', encryptedToken);
-        sessionStorage.setItem('loginResponse', encryptedResponse);
         this.setUser(response.data.user);
       }
 
@@ -51,7 +47,8 @@ const authService = {
    */
   logout() {
     localStorage.removeItem('token');
-    this.removeUser();
+    sessionStorage.clear();
+    localStorage.clear();
   },
 
   /**
@@ -69,9 +66,14 @@ const authService = {
    * @returns {string|null} Token de autenticación o null si no existe
    */
   getToken() {
-    const encryptedToken = localStorage.getItem('token');
-    if (!encryptedToken) return null;
-    return encryptionService.decrypt(encryptedToken);
+    try {
+      const encryptedToken = localStorage.getItem('token');
+      if (!encryptedToken) return null;
+      return encryptionService.decrypt(encryptedToken);
+    } catch (error) {
+      console.error('Error getting token:', error);
+      return null;
+    }
   },
 
   /**
@@ -95,17 +97,17 @@ const authService = {
 
       if (response.data) {
         const userData = {
-          id: response.data.user.id,
+          id: response.data.user.id.toString(),
           email: response.data.user.email,
           name: response.data.user.name,
           picture: response.data.user.picture,
           provider: response.data.user.provider,
+          google_id: response.data.user.google_id,
         };
 
-        const encryptedUser = encryptionService.encrypt(userData);
+        sessionStorage.setItem('user_id', JSON.stringify(userData));
+        
         const encryptedToken = encryptionService.encrypt(response.data.token);
-
-        sessionStorage.setItem('user', encryptedUser);
         localStorage.setItem('token', encryptedToken);
       }
 
@@ -117,19 +119,27 @@ const authService = {
   },
 
   setUser: (user: User) => {
-    const encryptedUser = encryptionService.encrypt(user);
-    sessionStorage.setItem(AUTH_KEY, encryptedUser);
+    sessionStorage.setItem(AUTH_KEY, JSON.stringify(user));
   },
 
   getUser: (): User | null => {
-    const encryptedUser = sessionStorage.getItem('user');
-    if (!encryptedUser) return null;
-    return encryptionService.decrypt(encryptedUser);
+    try {
+      const userStr = sessionStorage.getItem('user_id');
+      if (!userStr) return null;
+      return JSON.parse(userStr);
+    } catch (error) {
+      console.error('Error getting user:', error);
+      return null;
+    }
   },
 
-  removeUser: () => {
-    sessionStorage.removeItem(AUTH_KEY);
+  getUserId: (): string | null => {
+    return sessionStorage.getItem('user_id');
   },
+
+  isAuthenticated: (): boolean => {
+    return !!sessionStorage.getItem(AUTH_KEY);
+  }
 };
 
 export default authService;
