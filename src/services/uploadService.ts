@@ -20,16 +20,26 @@ export const uploadService = {
 
       if (!userId) throw new Error('Usuario no encontrado');
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('user_id', userId);
+      const base64File = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          const base64String = reader.result as string;
+          resolve(base64String.split(',')[1]);
+        };
+        reader.onerror = error => reject(error);
+      });
 
       const response = await axios.post(
         `${env.CHAT_API_URL}/api/upload_pdf`,
-        formData,
+        {
+          file: base64File,
+          user_id: userId,
+          filename: file.name
+        },
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         },
       );
