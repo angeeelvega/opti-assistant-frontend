@@ -12,7 +12,7 @@ export const uploadService = {
       formData.append('file', file);
 
       const response = await axios.post(
-        `${env.CHAT_API_URL}/upload-pdf`,
+        `${env.CHAT_API_URL}/api/upload_pdf`,
         formData,
         {
           headers: {
