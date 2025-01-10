@@ -8,8 +8,21 @@ export const uploadService = {
         throw new Error('El archivo debe ser un PDF');
       }
 
+      let userId = sessionStorage.getItem('user_id');
+      
+      if (!userId) {
+        const authUser = sessionStorage.getItem('auth_user');
+        if (authUser) {
+          const user = JSON.parse(authUser);
+          userId = user.id;
+        }
+      }
+
+      if (!userId) throw new Error('Usuario no encontrado');
+
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('user_id', userId);
 
       const response = await axios.post(
         `${env.CHAT_API_URL}/api/upload_pdf`,
