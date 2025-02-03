@@ -32,20 +32,27 @@ const Login = () => {
     try {
       setLoading(true);
       setError('');
-
+  
       const decodedToken = jwtDecode<GoogleJwtPayload>(response.credential);
-
-      const userId = await userService.getUserIdByGoogleId(decodedToken.sub);
-
+      const nameParts = decodedToken.name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      const userId = await userService.getUserIdByGoogleId(
+        decodedToken.sub,
+        decodedToken.email,
+        firstName,
+        lastName
+      );
+  
       const userData: User = {
         id: userId,
         email: decodedToken.email,
         name: decodedToken.name,
-        picture: decodedToken.picture,
         provider: 'google',
-        google_id: decodedToken.sub,
+        google_id: decodedToken.sub
       };
-
+  
       await login(userData, response.credential);
       navigate('/home');
     } catch (err) {

@@ -2,12 +2,20 @@ import axios from 'axios';
 import { env } from '../config/env';
 
 export const userService = {
-  async getUserIdByGoogleId(googleId: string): Promise<string> {
+  async getUserIdByGoogleId(
+    googleId: string, 
+    email: string, 
+    firstName: string, 
+    lastName: string
+  ): Promise<string> {
     try {
       const response = await axios.post(
         `${env.CHAT_API_URL}/auth/google/consultar_googleid`,
         {
           google_id: googleId,
+          correoElectronico: email,
+          nombre: firstName,
+          apellido: lastName
         },
       );
 
