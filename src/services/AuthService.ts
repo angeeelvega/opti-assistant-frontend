@@ -119,7 +119,14 @@ export const authService = {
   },
 
   setUser: (user: User) => {
-    sessionStorage.setItem(AUTH_KEY, JSON.stringify(user));
+    const userData = {
+      id: user.id.toString(),
+      email: user.email,
+      name: user.name,
+      provider: user.provider,
+      microsoft_id: user.microsoft_id
+    };
+    sessionStorage.setItem(AUTH_KEY, JSON.stringify(userData));
   },
 
   getUser: (): User | null => {

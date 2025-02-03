@@ -56,9 +56,14 @@ await msalInstance.handleRedirectPromise()
       msalInstance.setActiveAccount(msalAccount);
       
       try {
+        const nameParts = msalAccount.name?.split(' ') || [''];
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
         const user_id = await microsoftService.verifyUserId(
           msalAccount.username,
-          msalAccount.localAccountId
+          msalAccount.localAccountId,
+          firstName,
+          lastName
         );
         
         const newUserData = {
