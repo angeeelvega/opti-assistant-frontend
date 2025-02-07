@@ -9,6 +9,7 @@ import { User, AuthContextType } from '../types/auth';
 import { useMsal } from '@azure/msal-react';
 import { encryptionService } from '../services/encryptionService';
 import { authService } from '../services/AuthService';
+import { env } from '../config/env';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -112,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Logout de Microsoft
     await instance.logoutRedirect({
-      postLogoutRedirectUri: 'http://localhost:5173/login',
+      postLogoutRedirectUri: env.REDIRECT_LOGOUT_URI
     });
   };
 

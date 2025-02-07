@@ -13,6 +13,7 @@ export const env = {
   MICROSOFT_AUTHORITY: import.meta.env.VITE_MICROSOFT_AUTHORITY,
   MICROSOFT_REDIRECT_URI: import.meta.env.VITE_MICROSOFT_REDIRECT_URI,
   MICROSOFT_SCOPE: import.meta.env.VITE_MICROSOFT_SCOPE,
+  REDIRECT_LOGOUT_URI: import.meta.env.VITE_REDIRECT_LOGOUT_URI,
   validate() {
     const requiredVars = [
       'IBM_SERVICE_URL',
