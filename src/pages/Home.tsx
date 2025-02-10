@@ -10,8 +10,8 @@ import { Menu, Logout } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Drawer } from '../components/Layout/Drawer';
-import { ChatMessages } from '../components/Chat/ChatMessages';
-import { ChatInput } from '../components/Chat/ChatInput';
+import { ChatMessages } from '../components/chat/ChatMessages';
+import { ChatInput } from '../components/chat/ChatInput';
 import { useChat } from '../hooks/useChat';
 
 const Home = () => {

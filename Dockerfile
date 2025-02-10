@@ -12,7 +12,7 @@ RUN npm install
 # Copy project files
 COPY . .
 
-# Set environment variables (if needed)
+# Set environment variables
 ENV NODE_ENV=development
 ENV VITE_HOST=0.0.0.0
 
